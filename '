@@ -1,0 +1,30 @@
+use tokio::{
+    io::{AsyncWriteExt, BufReader},
+    net::{TcpListener, TcpStream},
+};
+
+#[tokio::main]
+async fn main() {
+    let port = 6969;
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", port))
+        .await
+        .unwrap();
+
+    loop {
+        let (mut socket, _) = listener.accept().await.unwrap();
+        process(&mut socket).await;
+    }
+}
+
+async fn process(socket: &mut TcpStream) {
+    let mut stream = BufReader::new(socket);
+    loop {
+        socket
+            .write(b"Hello from tokio server!")
+            .await
+            .expect("failed to send to client");
+
+        stream.write(b"Hello from tokio server!");
+    }
+}
+
