@@ -4,7 +4,7 @@ use std::{
     sync::{mpsc, Arc},
 };
 
-use crossbeam::channel::{bounded, unbounded, Receiver};
+use crossbeam::channel::{bounded, Receiver};
 use local_ip_address::linux::local_ip;
 use raylib::prelude::*;
 
@@ -27,7 +27,7 @@ fn handle_client(game_tx: mpsc::Sender<String>, server_rx: Receiver<String>) {
                     loop {
                         let mut message = String::new();
                         if let Ok(recieved_msg) = server_rx.try_recv() {
-                            message = format!("Hello from server: {}\n", recieved_msg.trim());
+                            message = format!("{}\n", recieved_msg.trim());
                         }
                         w.write_all(message.as_bytes())
                             .expect("Failed to write to client");
@@ -82,7 +82,7 @@ fn handle_server_connect(game_tx: mpsc::Sender<String>, server_rx: Receiver<Stri
                     println!("Server disconnected");
                     break;
                 }
-                game_tx.send(message).unwrap();
+                game_tx.send(message.trim().to_string()).unwrap();
             }
         }
     });
@@ -94,7 +94,7 @@ fn handle_server_connect(game_tx: mpsc::Sender<String>, server_rx: Receiver<Stri
         loop {
             let mut message = String::new();
             if let Ok(recieved_msg) = server_rx.try_recv() {
-                message = format!("Hello from server: {}\n", recieved_msg.trim());
+                message = format!("{}\n", recieved_msg.trim());
             }
             w.write_all(message.as_bytes())
                 .expect("Failed to write to server");
@@ -139,7 +139,11 @@ fn main() {
     while !rl.window_should_close() {
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
             let num: i32 = get_random_value(0, 6);
-            server_tx.send(format!("Rand num: {}", num)).unwrap();
+            if num == 6 {
+                server_tx.send("BANG!".to_string()).unwrap();
+            } else {
+                server_tx.send(num.to_string()).unwrap();
+            }
             println!("space presed");
         }
 
@@ -149,7 +153,12 @@ fn main() {
             message = recieved_msg;
         }
 
-        d.draw_text(&message, 100, 100, 20, Color::BLACK);
+        if message == "BANG!" {
+            d.draw_text("AGAYyy!!!!", 100, 200, 40, Color::RED);
+        } else {
+            d.draw_text(&message, 100, 100, 20, Color::BLACK);
+        }
+
         d.clear_background(Color::WHITE);
         d.draw_fps(10, 10);
     }
