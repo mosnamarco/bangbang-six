@@ -1,13 +1,13 @@
 use std::{
     io::{BufRead, BufReader, BufWriter, Write},
     net::{TcpListener, TcpStream},
-    sync::Arc,
+    sync::{mpsc, Arc},
 };
 
 use local_ip_address::linux::local_ip;
 use raylib::prelude::*;
 
-fn handle_client() {
+fn handle_client(game_tx: mpsc::Sender<String>) {
     let ip = local_ip();
     let addr = format!("{}:{}", ip.unwrap(), 6969);
     let listener = TcpListener::bind(addr).expect("failed to bind to address");
@@ -35,6 +35,7 @@ fn handle_client() {
                     }
                 });
 
+                let game_tx = game_tx.clone();
                 let r_stream = Arc::clone(&stream_arc);
                 std::thread::spawn(move || {
                     let mut r = BufReader::new(r_stream.as_ref());
@@ -50,7 +51,8 @@ fn handle_client() {
                             if message.trim() == "pisot" {
                                 println!("Pisot mo man!");
                             }
-                            println!("{}", message.trim());
+
+                            game_tx.send(message.trim().to_string()).unwrap();
                         }
                     }
                 });
@@ -62,7 +64,7 @@ fn handle_client() {
     }
 }
 
-fn handle_server_connect() {
+fn handle_server_connect(game_tx: mpsc::Sender<String>) {
     // TODO: change this to be able to be defined by user
     let ip = local_ip();
     let addr = format!("{}:{}", ip.unwrap(), 6969);
@@ -80,7 +82,7 @@ fn handle_server_connect() {
                     println!("Server disconnected");
                     break;
                 }
-                println!("{}", message.trim());
+                game_tx.send(message).unwrap();
             }
         }
     });
@@ -105,32 +107,46 @@ fn handle_server_connect() {
 
 fn main() {
     println!("Choose mode\n1. Server\n2. Client");
-
     let mut choice = String::new();
     std::io::stdin()
         .read_line(&mut choice)
         .expect("Error reading line");
 
+    let (game_tx, game_rx) = mpsc::channel();
+
     match choice.trim() {
         "1" => {
             println!("Server stuff");
-            handle_client();
+            std::thread::spawn(move || {
+                handle_client(game_tx.clone());
+            });
         }
         "2" => {
             println!("Client stuff");
-            handle_server_connect();
+            handle_server_connect(game_tx.clone());
         }
         _ => {
             println!("Invalid input, defaulting to server...");
-            handle_client();
+            std::thread::spawn(move || {
+                handle_client(game_tx.clone());
+            });
         }
     }
 
     let (mut rl, thread) = raylib::init().size(640, 480).title("bangbang_six").build();
     rl.set_target_fps(60);
 
+    let mut message = String::new();
     while !rl.window_should_close() {
+        if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {}
+
         let mut d = rl.begin_drawing(&thread);
+
+        if let Ok(recieved_msg) = game_rx.try_recv() {
+            message = recieved_msg;
+        }
+
+        d.draw_text(&message, 100, 100, 20, Color::BLACK);
         d.clear_background(Color::WHITE);
         d.draw_fps(10, 10);
     }
