@@ -43,6 +43,10 @@ fn main() {
         .build();
     rl.set_target_fps(60);
 
+    let mut audio_handler = raylib::audio::RaylibAudio::init_audio_device();
+    let gun_click: Sound = Sound::load_sound("resources/gun_click.mp3").unwrap();
+    let gun_pop: Sound = Sound::load_sound("resources/gun_pop.mp3").unwrap();
+
     let mut message = String::new();
     let mut winner = false;
     let mut game_start: bool = false;
@@ -68,8 +72,10 @@ fn main() {
             if num == 6 {
                 server_tx.send("BANG!".to_string()).unwrap();
                 winner = true;
+                audio_handler.play_sound(&gun_pop);
             } else {
                 server_tx.send(num.to_string()).unwrap();
+                audio_handler.play_sound(&gun_click);
             }
             println!("space presed");
         }
