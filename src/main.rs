@@ -5,6 +5,9 @@ use std::sync::mpsc;
 mod network_logic;
 use network_logic::{handle_client, handle_server_connect};
 
+const W_WIDTH: i32 = 1280;
+const W_HEIGHT: i32 = 720;
+
 fn main() {
     println!("Choose mode\n1. Server\n2. Client");
     let mut choice = String::new();
@@ -34,31 +37,54 @@ fn main() {
         }
     }
 
-    let (mut rl, thread) = raylib::init().size(640, 480).title("bangbang_six").build();
+    let (mut rl, thread) = raylib::init()
+        .size(W_WIDTH, W_HEIGHT)
+        .title("bangbang_six")
+        .build();
     rl.set_target_fps(60);
 
     let mut message = String::new();
+    let mut winner = false;
+
     while !rl.window_should_close() {
-        if rl.is_key_pressed(KeyboardKey::KEY_SPACE) {
+        if let Ok(recieved_msg) = game_rx.try_recv() {
+            message = recieved_msg;
+        }
+
+        // NOTE: Update
+        if rl.is_key_pressed(KeyboardKey::KEY_SPACE) && message.trim() != "BANG!" && winner == false
+        {
             let num: i32 = get_random_value(0, 6);
             if num == 6 {
                 server_tx.send("BANG!".to_string()).unwrap();
+                winner = true;
             } else {
                 server_tx.send(num.to_string()).unwrap();
             }
             println!("space presed");
         }
 
+        // NOTE: Draw
         let mut d = rl.begin_drawing(&thread);
 
-        if let Ok(recieved_msg) = game_rx.try_recv() {
-            message = recieved_msg;
-        }
-
-        if message == "BANG!" {
-            d.draw_text("AGAYyy!!!!", 100, 200, 40, Color::RED);
-        } else {
-            d.draw_text(&message, 100, 100, 20, Color::BLACK);
+        match winner {
+            true => {
+                d.draw_text("YOU WIN!!!", 100, 200, 40, Color::RED);
+            }
+            false => match message.as_str() {
+                "BANG!" => {
+                    d.draw_text("YOU LOSE...", 100, 200, 40, Color::RED);
+                }
+                _ => {
+                    d.draw_text(
+                        &format!("Your number: {}", &message.trim()).to_string(),
+                        100,
+                        200,
+                        40,
+                        Color::RED,
+                    );
+                }
+            },
         }
 
         d.clear_background(Color::WHITE);
