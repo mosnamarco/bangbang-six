@@ -1,6 +1,6 @@
 use crossbeam::channel::bounded;
 use raylib::prelude::*;
-use std::sync::mpsc;
+use std::{io, sync::mpsc};
 
 mod network_logic;
 use network_logic::{handle_client, handle_server_connect};
@@ -27,7 +27,12 @@ fn main() {
         }
         "2" => {
             println!("Client stuff");
-            handle_server_connect(game_tx.clone(), server_rx.clone());
+            let mut ip = String::new();
+
+            println!("Enter ip <192.x.x.x>: ");
+            io::stdin().read_line(&mut ip).expect("failed to read ip");
+
+            handle_server_connect(game_tx.clone(), server_rx.clone(), ip.trim().to_string());
         }
         _ => {
             println!("Invalid input, defaulting to server...");
@@ -46,6 +51,7 @@ fn main() {
     let mut audio_handler = raylib::audio::RaylibAudio::init_audio_device();
     let gun_click: Sound = Sound::load_sound("resources/gun_click.mp3").unwrap();
     let gun_pop: Sound = Sound::load_sound("resources/gun_pop.mp3").unwrap();
+    audio_handler.set_sound_volume(&gun_click, 0.4);
 
     let mut message = String::new();
     let mut winner = false;

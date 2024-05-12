@@ -63,10 +63,13 @@ pub fn handle_client(game_tx: mpsc::Sender<String>, server_rx: Receiver<String>)
     }
 }
 
-pub fn handle_server_connect(game_tx: mpsc::Sender<String>, server_rx: Receiver<String>) {
+pub fn handle_server_connect(
+    game_tx: mpsc::Sender<String>,
+    server_rx: Receiver<String>,
+    ip: String,
+) {
     // TODO: change this to be able to be defined by user
-    let ip = local_ip();
-    let addr = format!("{}:{}", ip.unwrap(), 6969);
+    let addr = format!("{}:{}", ip, 6969);
     let socket = TcpStream::connect(addr).expect("failed to bind to address");
 
     let socket = Arc::new(socket);
