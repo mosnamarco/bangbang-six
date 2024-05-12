@@ -1,9 +1,0 @@
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/lib/libraylib.a
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/include/raylib.h
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/include/rlgl.h
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/include/physac.h
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/include/raymath.h
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/include/raudio.h
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/lib/pkgconfig/raylib.pc
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/lib/cmake/raylib/raylib-config-version.cmake
-/home/marco/Desktop/Projects/rustacian-na-ako/bangbang_six/target/debug/build/raylib-sys-cf148da2bc5a1b0f/out/lib/cmake/raylib/raylib-config.cmake
