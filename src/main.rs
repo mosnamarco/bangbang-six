@@ -45,14 +45,24 @@ fn main() {
 
     let mut message = String::new();
     let mut winner = false;
+    let mut game_start: bool = false;
 
     while !rl.window_should_close() {
         if let Ok(recieved_msg) = game_rx.try_recv() {
             message = recieved_msg;
         }
 
+        if game_start == false {
+            server_tx.send("START".to_string()).unwrap();
+            game_start = message.trim() == "START";
+            message.clear();
+        }
+
         // NOTE: Update
-        if rl.is_key_pressed(KeyboardKey::KEY_SPACE) && message.trim() != "BANG!" && winner == false
+        if rl.is_key_pressed(KeyboardKey::KEY_SPACE)
+            && message.trim() != "BANG!"
+            && winner == false
+            && game_start == true
         {
             let num: i32 = get_random_value(0, 6);
             if num == 6 {
@@ -69,24 +79,33 @@ fn main() {
 
         match winner {
             true => {
-                d.draw_text("YOU WIN!!!", 100, 200, 40, Color::RED);
+                d.draw_text("YOU WIN!!!", 10, 70, 40, Color::GREEN);
             }
             false => match message.as_str() {
                 "BANG!" => {
-                    d.draw_text("YOU LOSE...", 100, 200, 40, Color::RED);
+                    d.draw_text("YOU LOSE...", 10, 70, 40, Color::RED);
                 }
                 _ => {
                     d.draw_text(
                         &format!("Your number: {}", &message.trim()).to_string(),
-                        100,
-                        200,
+                        10,
+                        70,
                         40,
-                        Color::RED,
+                        Color::BLUE,
                     );
                 }
             },
         }
 
+        match choice.trim() {
+            "1" => {
+                d.draw_text("You are server", 10, 30, 20, Color::BLACK);
+            }
+            "2" => {
+                d.draw_text("You are client", 10, 30, 20, Color::BLACK);
+            }
+            _ => {}
+        }
         d.clear_background(Color::WHITE);
         d.draw_fps(10, 10);
     }
