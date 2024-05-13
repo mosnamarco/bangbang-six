@@ -18,3 +18,7 @@ Purpose: Final Project Simple TCP Connection demonstration
 1. Will handle TCP connection over LAN
 2. Will print the string "YOU WIN" and "YOU LOSE" as a substring (this depends on game state)
 3. Will not need Rust compiler to run (Built in rust but already has pre-built binary along with it's resource in a folder)
+
+### TODO
+* Minimize game limitation
+* Update github workflow yaml (current problem, raylib can't find it's dependencies on custom build)
