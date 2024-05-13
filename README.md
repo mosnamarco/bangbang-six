@@ -4,7 +4,8 @@ Purpose: Final Project Simple TCP Connection demonstration
 
 ## Required  setup
 1. Unix based OS (Preferably Linux)
-2. Terminal (for client connection, server can be run just by executing the executable)
+2. Rust compiler (rustc and/or Cargo)
+3. Terminal (for client connection, server can be run just by executing the executable)
 
 ## Scope and limitation
 1. Game logic is not 100% done
