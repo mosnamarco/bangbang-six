@@ -12,53 +12,36 @@ pub fn handle_client(game_tx: mpsc::Sender<String>, server_rx: Receiver<String>)
     let addr = format!("{}:{}", ip.unwrap(), 6969);
     let listener = TcpListener::bind(addr).expect("failed to bind to address");
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                let stream_arc = Arc::new(stream);
+    match listener.accept() {
+        Ok((socket, addr)) => {
+            println!("Connected to: {}", addr);
 
-                let w_stream = Arc::clone(&stream_arc);
-                let server_rx = server_rx.clone();
-                std::thread::spawn(move || {
-                    let mut w = BufWriter::new(w_stream.as_ref());
+            let socket = Arc::new(socket);
 
-                    // TODO: make this available in main thread
-                    loop {
-                        let mut message = String::new();
-                        if let Ok(recieved_msg) = server_rx.try_recv() {
-                            message = format!("{}\n", recieved_msg.trim());
-                        }
-                        w.write_all(message.as_bytes())
-                            .expect("Failed to write to client");
-                        w.flush().expect("Failed to flush buffer");
-                    }
-                });
+            let reader_socket = Arc::clone(&socket);
+            std::thread::spawn(move || loop {
+                let mut reader = BufReader::new(reader_socket.as_ref());
 
-                let game_tx = game_tx.clone();
-                let r_stream = Arc::clone(&stream_arc);
-                std::thread::spawn(move || {
-                    let mut r = BufReader::new(r_stream.as_ref());
-                    // TODO: make this available in main thread
-                    loop {
-                        let mut message = String::new();
-                        if let Ok(bytes_read) = r.read_line(&mut message) {
-                            if bytes_read == 0 {
-                                println!("Client disconnected");
-                                break;
-                            }
+                let mut message = String::new();
+                let _ = reader.read_line(&mut message);
 
-                            if message.trim() == "pisot" {
-                                println!("Pisot mo man!");
-                            }
+                game_tx.send(message.trim().to_string()).unwrap();
+                println!("{}", message.trim());
+            });
 
-                            game_tx.send(message.trim().to_string()).unwrap();
-                        }
-                    }
-                });
-            }
-            Err(_) => {
-                println!("client disconnected");
-            }
+            let writer_socket = Arc::clone(&socket);
+            std::thread::spawn(move || loop {
+                let mut writer = BufWriter::new(writer_socket.as_ref());
+
+                let mut message = String::new();
+                if let Ok(recieved_msg) = server_rx.try_recv() {
+                    message = format!("{}\n", recieved_msg.trim());
+                }
+                let _ = writer.write_all(message.as_bytes());
+            });
+        }
+        Err(_) => {
+            println!("Failed to connect to client");
         }
     }
 }
