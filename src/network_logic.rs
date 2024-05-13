@@ -57,9 +57,9 @@ pub fn handle_server_connect(
 
     let socket = Arc::new(socket);
 
-    let r_socket = Arc::clone(&socket);
+    let reader_socket = Arc::clone(&socket);
     std::thread::spawn(move || {
-        let mut r = BufReader::new(r_socket.as_ref());
+        let mut r = BufReader::new(reader_socket.as_ref());
         loop {
             let mut message = String::new();
             if let Ok(bytes_read) = r.read_line(&mut message) {
@@ -68,13 +68,14 @@ pub fn handle_server_connect(
                     break;
                 }
                 game_tx.send(message.trim().to_string()).unwrap();
+                println!("{}", message.trim());
             }
         }
     });
 
-    let w_socket = Arc::clone(&socket);
+    let writer_socket = Arc::clone(&socket);
     std::thread::spawn(move || {
-        let mut w = BufWriter::new(w_socket.as_ref());
+        let mut w = BufWriter::new(writer_socket.as_ref());
 
         loop {
             let mut message = String::new();

@@ -44,7 +44,7 @@ fn main() {
         .build();
     rl.set_target_fps(60);
 
-    let mut audio_handler = raylib::audio::RaylibAudio::init_audio_device();
+    let mut audio_handler = RaylibAudio::init_audio_device();
     let gun_click: Sound = Sound::load_sound("resources/gun_click.mp3").unwrap();
     let gun_pop: Sound = Sound::load_sound("resources/gun_pop.mp3").unwrap();
     audio_handler.set_sound_volume(&gun_click, 0.4);
@@ -87,15 +87,15 @@ fn main() {
 
         match winner {
             true => {
-                d.draw_text("YOU WIN!!!", 10, 70, 40, Color::GREEN);
+                d.draw_text("BANG!!! YOU WIN!!!", 10, 70, 40, Color::GREEN);
             }
             false => match message.as_str() {
                 "BANG!" => {
-                    d.draw_text("YOU LOSE...", 10, 70, 40, Color::RED);
+                    d.draw_text("BANG!!! YOU LOSE...", 10, 70, 40, Color::RED);
                 }
                 _ => {
                     d.draw_text(
-                        &format!("His number: {}", &message.trim()).to_string(),
+                        &format!("Received bullet # (blank): {}", &message.trim()).to_string(),
                         10,
                         70,
                         30,
