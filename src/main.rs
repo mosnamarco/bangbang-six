@@ -5,8 +5,8 @@ use std::{io, sync::mpsc};
 mod network_logic;
 use network_logic::{handle_client, handle_server_connect};
 
-const W_WIDTH: i32 = 1280;
-const W_HEIGHT: i32 = 720;
+const W_WIDTH: i32 = 800;
+const W_HEIGHT: i32 = 500;
 
 fn main() {
     println!("Choose mode\n1. Server\n2. Client");
@@ -99,10 +99,10 @@ fn main() {
                 }
                 _ => {
                     d.draw_text(
-                        &format!("Your number: {}", &message.trim()).to_string(),
+                        &format!("Opponent missed!!! His number: {}", &message.trim()).to_string(),
                         10,
                         70,
-                        40,
+                        30,
                         Color::BLUE,
                     );
                 }
