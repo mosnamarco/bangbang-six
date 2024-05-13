@@ -21,9 +21,7 @@ fn main() {
     match choice.trim() {
         "1" => {
             println!("Server stuff");
-            std::thread::spawn(move || {
-                handle_client(game_tx.clone(), server_rx.clone());
-            });
+            handle_client(game_tx.clone(), server_rx.clone());
         }
         "2" => {
             println!("Client stuff");
@@ -36,9 +34,7 @@ fn main() {
         }
         _ => {
             println!("Invalid input, defaulting to server...");
-            std::thread::spawn(move || {
-                handle_client(game_tx.clone(), server_rx.clone());
-            });
+            handle_client(game_tx.clone(), server_rx.clone());
         }
     }
 
@@ -83,7 +79,7 @@ fn main() {
                 server_tx.send(num.to_string()).unwrap();
                 audio_handler.play_sound(&gun_click);
             }
-            println!("space presed");
+            println!("Bullet sent!");
         }
 
         // NOTE: Draw
@@ -99,7 +95,7 @@ fn main() {
                 }
                 _ => {
                     d.draw_text(
-                        &format!("Opponent missed!!! His number: {}", &message.trim()).to_string(),
+                        &format!("His number: {}", &message.trim()).to_string(),
                         10,
                         70,
                         30,
